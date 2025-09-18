@@ -20,7 +20,12 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
           cache: 'maven'
-
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
       - name: Verify & Sonar analysis
         shell: bash
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
