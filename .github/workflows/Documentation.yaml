@@ -1,5 +1,4 @@
 name: Generate & Publish Javadoc
-
 on:
   pull_request:
     types: [closed]
@@ -19,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Switch to merge commit
         shell: bash
         run: |
@@ -40,24 +40,24 @@ jobs:
         id: apidocs
         shell: bash
         run: |
-            if [ -d "target/site/apidocs" ]; then
-              echo "dir=target/site/apidocs" >> "$GITHUB_OUTPUT"
-            else
-              FOUND=$(find . -type d -name apidocs -print -quit)
-              if [ -z "$FOUND" ]; then
-                echo "Aucun dossier 'apidocs' trouvé après la génération Javadoc." >&2
-                exit 1
-              fi
-              echo "dir=$FOUND" >> "$GITHUB_OUTPUT"
+          if [ -d "target/site/apidocs" ]; then
+            echo "dir=target/site/apidocs" >> "$GITHUB_OUTPUT"
+          else
+            FOUND=$(find . -type d -name apidocs -print -quit)
+            if [ -z "$FOUND" ]; then
+              echo "Aucun dossier 'apidocs' trouvé après la génération Javadoc." >&2
+              exit 1
             fi
-            echo "Apidocs: $(cat $GITHUB_OUTPUT)"
+            echo "dir=$FOUND" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Apidocs: $(cat "$GITHUB_OUTPUT")"
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ steps.apidocs.outputs.dir }}
-          publish_branch : gh-pages
+          publish_branch: gh-pages      # ✅ corrigé
           keep_history: true
           enable_jekyll: false
           commit_message: "Javadoc: PR #${{ github.event.pull_request.number }} → ${{ github.event.pull_request.base.ref }}"
