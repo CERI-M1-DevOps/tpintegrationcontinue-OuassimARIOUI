@@ -23,10 +23,5 @@ jobs:
 
       - name: Verify & Sonar analysis
         shell: bash
-        run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey="$(echo ${{ github.repository }} | sed 's-/-_-')" \
-            -Dsonar.organization="CERI-M1-DevOps" \
-            -Dsonar.host.url="https://sonarcloud.io" \
-            -Dsonar.qualitygate.wait=true \
-            -Dsonar.login=$SONAR_TOKEN
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+            -Dsonar.projectKey=$(echo ${{ github.repository }} | sed 's-/-_-')
