@@ -1,0 +1,63 @@
+name: Generate & Publish Javadoc
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  publish-docs:
+    if: >
+      github.event.pull_request.merged == true &&
+      (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Switch to merge commit
+        shell: bash
+        run: |
+          git fetch origin ${{ github.event.pull_request.merge_commit_sha }} --depth=1
+          git checkout ${{ github.event.pull_request.merge_commit_sha }}
+          git rev-parse --short HEAD
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build Javadoc
+        run: mvn -B -DskipTests javadoc:javadoc
+
+      - name: Resolve apidocs path
+        id: apidocs
+        shell: bash
+        run: |
+          if [ -d "target/site/apidocs" ]; then
+            echo "dir=target/site/apidocs" >> "$GITHUB_OUTPUT"
+          else
+            FOUND=$(find . -type d -name apidocs -print -quit)
+            if [ -z "$FOUND" ]; then
+              echo "Aucun dossier 'apidocs' trouvé après la génération Javadoc." >&2
+              exit 1
+            fi
+            echo "dir=$FOUND" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Apidocs: $(cat "$GITHUB_OUTPUT")"
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ steps.apidocs.outputs.dir }}
+          publish_branch: gh-pages      # ✅ corrigé
+          keep_history: true
+          enable_jekyll: false
+          commit_message: "Javadoc: PR #${{ github.event.pull_request.number }} → ${{ github.event.pull_request.base.ref }}"

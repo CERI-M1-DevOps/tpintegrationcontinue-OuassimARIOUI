@@ -13,6 +13,8 @@ public class ListeSimple {
         size++;
     }
 
+
+
     public void modifiePremier(Object element, Object nouvelleValeur) {
         Noeud courant = tete;
         while (courant != null && courant.getElement() != element)
@@ -20,6 +22,12 @@ public class ListeSimple {
         if (courant != null)
             courant.setElement(nouvelleValeur);
     }
+
+    /**
+     * Modifie toutes les occurrences d'un élément dans la liste.
+     * @param element valeur à remplacer
+     * @param nouvelleValeur nouvelle valeur à insérer
+     */
 
     public void modifieTous(Object element, Object nouvelleValeur) {
         Noeud courant = tete;
@@ -29,6 +37,10 @@ public class ListeSimple {
             courant = courant.getSuivant();
         }
     }
+    /**
+     * Retourne une représentation textuelle de la liste.
+     * @return la chaîne représentant la liste
+     */
 
     public String toString() {
         StringBuilder sb = new StringBuilder("ListeSimple(");
@@ -42,6 +54,11 @@ public class ListeSimple {
         sb.append(")");
         return sb.toString();
     }
+
+    /**
+     * Supprime la première occurrence d'un élément dans la liste.
+     * @param element valeur à supprimer
+     */
 
     public void supprimePremier(Object element) {
         if (tete != null) {
